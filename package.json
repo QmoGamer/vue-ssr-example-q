@@ -5,6 +5,8 @@
     "dev": "node server"
   },
   "dependencies": {
+    "koa": "^2.7.0",
+    "koa-router": "^7.4.0",
     "vue": "^2.6.8",
     "vue-server-renderer": "^2.6.8"
   }
