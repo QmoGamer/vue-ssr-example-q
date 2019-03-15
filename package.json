@@ -1,0 +1,11 @@
+{
+  "name": "vue-ssr-example-q",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node server"
+  },
+  "dependencies": {
+    "vue": "^2.6.8",
+    "vue-server-renderer": "^2.6.8"
+  }
+}
