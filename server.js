@@ -1,12 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const LRU = require('lru-cache');
 const { createBundleRenderer } = require('vue-server-renderer');
 const devServer = require('./build/setup-dev-server')
 const resolve = file => path.resolve(__dirname, file);
 
 const isProd = process.env.NODE_ENV === 'production';
 const app = express();
+
+const microCache = LRU({
+  max: 100,
+  maxAge: 1000
+})
+const isCacheable = req => {
+  return true
+}
 
 const serve = (path, cache) =>
   express.static(resolve(path), {
@@ -25,6 +34,15 @@ function createRenderer(bundle, options) {
 }
 
 function render(req, res) {
+  const cacheable = isCacheable(req)
+  if (cacheable) {
+    const hit = microCache.get(req.url)
+    if (hit) {
+      console.log('Response from cache')
+      return res.end(hit)
+    }
+  }
+
   const startTime = Date.now();
   res.setHeader('Content-Type', 'text/html');
 
@@ -48,6 +66,9 @@ function render(req, res) {
       return handleError(err);
     }
     res.send(html);
+    if (cacheable) {
+      microCache.set(req.url, html)
+    }
     if (!isProd) {
       console.log(`whole request: ${Date.now() - startTime}ms`);
     }
